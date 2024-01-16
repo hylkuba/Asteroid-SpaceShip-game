@@ -6,62 +6,40 @@
 default:
 	g++ ../src/*.cpp -o Game.exe -O2 -Wall -Wno-missing-braces -I ../include/ -L ../lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
 
-NAME = Asteroid-SpaceShip-game
+# Makefile for raylib example
 
-ifeq ($(shell uname),Linux)
-    CXX = g++
-    LD = g++
-    CXXFLAGS = -Wall -pedantic -std=c++17 -g -O2 -fsanitize=address -I ../include
-    LDFLAGS = -fsanitize=address -L ../lib -lm -lpthread -ldl -lrt -lX11 -lraylib
-    TARGET = $(NAME)
-else
-    CXX = g++
-    LD = g++ -mconsole
-    CXXFLAGS = -Wall -pedantic -Wextra -std=c++17 -g -O2 -Wno-missing-braces -mconsole -I ../include
-    LDFLAGS = -m64 -L ../lib -lraylib -lopengl32 -lgdi32 -lwinmm -lm
-    TARGET = $(NAME).exe
-endif
+# Compiler and flags
+CXX = g++
+CXXFLAGS = -O2 -Wall -Wno-missing-braces
+INCLUDES = -I../include/
+LIBS = -L../lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
 
-HEADERS = $(wildcard src/*.h)
+# Source files
+SRCS = $(wildcard ../src/*.cpp)
+OBJS = $(addprefix bin/,$(notdir $(SRCS:.cpp=.o)))  # Store .o files in the bin folder
 
-DIR_NAME = bin
+# Executable name
+EXEC = Game.exe
 
-OBJS = $(DIR_NAME)/main.o
+# Build rule
+$(EXEC): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ $^ $(LIBS)
 
-$(TARGET): $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET)
+# Compilation rule for object files
+bin/%.o: ../src/%.cpp
+	@mkdir -p bin  # Create the bin folder if it doesn't exist
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c -o $@ $<
 
-#-----------------------------------------------------------------------
-# All .o objects stored in folder
-run: | $(DIR_NAME) compile
-	./$(TARGET)
+# Compile target
+compile: $(EXEC)
 
-$(DIR_NAME):
-	mkdir -p $(DIR_NAME)
+# Run target
+run: compile
+	./$(EXEC)
 
-compile: $(DIR_NAME) $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -o $(NAME)
-
-doc: Doxyfile $(HEADERS)
-	doxygen Doxyfile
-
-.PHONY: clean
+# Clean rule
 clean:
-	rm -rf $(DIR_NAME) $(TARGET) doc/ 2>/dev/null
+	rm -rf bin $(EXEC)
 
-$(DIR_NAME)/%.o: ../src/%.cpp $(HEADERS)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+.PHONY: compile run clean
 
-.PHONY: all
-all: doc run clean
-
-#-----------------------------------------------------------------------
-l:
-	cat Makefile src/*.h src/*.cpp | wc -l
-
-la:
-	cat Makefile src/* | wc -l
-#-----------------------------------------------------------------------
-# Object files dependencies
-$(DIR_NAME)/main.o: ../src/main.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
