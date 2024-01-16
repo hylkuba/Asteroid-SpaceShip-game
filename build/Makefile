@@ -1,12 +1,5 @@
-#   /**
-#    * @author Jakub Hýl <hylkuba@gmail.com>
-#    * @date 11.01.2024
-#   */
-
-default:
-	g++ ../src/*.cpp -o Game.exe -O2 -Wall -Wno-missing-braces -I ../include/ -L ../lib/ -lraylib -lopengl32 -lgdi32 -lwinmm
-
-# Makefile for raylib example
+#    @author Jakub Hýl <hylkuba@gmail.com>
+#    @date 11.01.2024
 
 # Compiler and flags
 CXX = g++
@@ -19,7 +12,7 @@ SRCS = $(wildcard ../src/*.cpp)
 OBJS = $(addprefix bin/,$(notdir $(SRCS:.cpp=.o)))  # Store .o files in the bin folder
 
 # Executable name
-EXEC = Game.exe
+EXEC = Asteroid-SpaceShip.exe
 
 # Build rule
 $(EXEC): $(OBJS)
@@ -42,4 +35,3 @@ clean:
 	rm -rf bin $(EXEC)
 
 .PHONY: compile run clean
-
